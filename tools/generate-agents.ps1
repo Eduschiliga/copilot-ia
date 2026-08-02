@@ -24,10 +24,15 @@ $profiles = [ordered]@{
     }
     'spec-to-tasks' = @{
         DisplayName = 'Spec to Tasks'
-        Tools = @('read', 'search', 'edit')
+        Tools = @('read', 'search', 'edit', 'agent')
         Handoffs = @(
             @{ Label = 'Implementar tasks'; Agent = 'spec-implementer'; Prompt = 'Implemente a fila de tasks criada nesta conversa, uma task por vez, com testes, review e aprovacao entre tasks.' }
         )
+    }
+    'spec-task-writer' = @{
+        DisplayName = 'Spec Task Writer'
+        Tools = @('read', 'search', 'edit')
+        Handoffs = @()
     }
     'spec-implementer' = @{
         DisplayName = 'Spec Implementer'
@@ -53,6 +58,13 @@ $profiles = [ordered]@{
         DisplayName = 'Spec Conformance'
         Tools = @('read', 'search')
         Handoffs = @()
+    }
+    'quick-task-writer' = @{
+        DisplayName = 'Quick Task Writer'
+        Tools = @('read', 'search', 'edit')
+        Handoffs = @(
+            @{ Label = 'Implementar a task'; Agent = 'task-implementer'; Prompt = 'Implemente a task criada nesta conversa, seguindo estritamente o escopo do arquivo.' }
+        )
     }
 }
 

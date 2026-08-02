@@ -16,31 +16,37 @@ AGENTS_ROOT = ROOT / ".github" / "agents"
 NAMES = (
     "spec-writer",
     "spec-to-tasks",
+    "spec-task-writer",
     "spec-implementer",
     "task-implementer",
     "task-test-guardian",
     "task-code-reviewer",
     "spec-conformance",
+    "quick-task-writer",
 )
 
 EXPECTED_TOOLS = {
     "spec-writer": ["read", "search", "edit"],
-    "spec-to-tasks": ["read", "search", "edit"],
+    "spec-to-tasks": ["read", "search", "edit", "agent"],
+    "spec-task-writer": ["read", "search", "edit"],
     "spec-implementer": ["read", "search", "execute", "agent"],
     "task-implementer": ["read", "search", "edit", "execute"],
     "task-test-guardian": ["read", "search", "edit", "execute"],
     "task-code-reviewer": ["read", "search"],
     "spec-conformance": ["read", "search"],
+    "quick-task-writer": ["read", "search", "edit"],
 }
 
 EXPECTED_AGENT_NAMES = {
     "spec-writer": "Spring Spec Writer",
     "spec-to-tasks": "Spec to Tasks",
+    "spec-task-writer": "Spec Task Writer",
     "spec-implementer": "Spec Implementer",
     "task-implementer": "Task Implementer",
     "task-test-guardian": "Task Test Guardian",
     "task-code-reviewer": "Task Code Reviewer",
     "spec-conformance": "Spec Conformance",
+    "quick-task-writer": "Quick Task Writer",
 }
 
 EXPECTED_HANDOFFS = {
@@ -60,11 +66,20 @@ EXPECTED_HANDOFFS = {
             "send": False,
         }
     ],
+    "spec-task-writer": [],
     "spec-implementer": [],
     "task-implementer": [],
     "task-test-guardian": [],
     "task-code-reviewer": [],
     "spec-conformance": [],
+    "quick-task-writer": [
+        {
+            "label": "Implementar a task",
+            "agent": "task-implementer",
+            "prompt": "Implemente a task criada nesta conversa, seguindo estritamente o escopo do arquivo.",
+            "send": False,
+        }
+    ],
 }
 
 SKILL_FIELDS = {
@@ -196,9 +211,10 @@ def validate_agent(name: str, skill_data: dict, skill_body: str) -> str:
         if handoff.get("send") is not False:
             fail(f"handoff must preserve human confirmation: {path}: {target}")
 
+    delegators = {"spec-implementer", "spec-to-tasks"}
     if name == "spec-implementer" and ("agent" not in data["tools"] or "edit" in data["tools"]):
         fail("orchestrator must delegate and must not edit directly")
-    if name != "spec-implementer" and "agent" in data["tools"]:
+    if name not in delegators and "agent" in data["tools"]:
         fail(f"specialist must not delegate: {path}")
     if name == "task-code-reviewer" and ({"edit", "execute", "agent"} & set(data["tools"])):
         fail("reviewer must not receive mutation-capable or delegation tools")
