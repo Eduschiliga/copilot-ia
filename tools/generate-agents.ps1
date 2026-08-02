@@ -49,6 +49,11 @@ $profiles = [ordered]@{
         Tools = @('read', 'search')
         Handoffs = @()
     }
+    'spec-conformance' = @{
+        DisplayName = 'Spec Conformance'
+        Tools = @('read', 'search')
+        Handoffs = @()
+    }
 }
 
 New-Item -ItemType Directory -Force -Path $agentsRoot | Out-Null

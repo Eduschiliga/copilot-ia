@@ -2,7 +2,7 @@
 
 Repositório central das configurações de GitHub Copilot usadas no fluxo contract-first para projetos Java/Spring Boot.
 
-O pacote contém seis Agent Skills e seis custom agents equivalentes. As skills são a fonte de verdade; os agents são gerados a partir delas para oferecer seleção explícita de persona no GitHub Copilot.
+O pacote contém sete Agent Skills e sete custom agents equivalentes. As skills são a fonte de verdade; os agents são gerados a partir delas para oferecer seleção explícita de persona no GitHub Copilot.
 
 ## Estrutura
 
@@ -17,8 +17,11 @@ copilot-ia/
 │   ├── generate-agents.ps1      # Regenera agents a partir das skills
 │   └── validate-package.py      # Valida estrutura, escopos e paridade
 ├── EVAL-RESULTS.md              # Evidências do eval das skills
+├── WORKFLOW.md                  # Passo a passo da spec à implementação
 └── install-personal.ps1         # Instala/atualiza em ~/.copilot
 ```
+
+O passo a passo completo (da spec à implementação, com prompts de exemplo e os gates humanos) está em [WORKFLOW.md](WORKFLOW.md).
 
 ## Papéis disponíveis
 
@@ -30,6 +33,7 @@ copilot-ia/
 | `task-implementer` | Implementar somente o código de produção de uma task |
 | `task-test-guardian` | Criar/corrigir testes e validar cenários felizes e tristes |
 | `task-code-reviewer` | Revisar uma task de modo somente leitura |
+| `spec-conformance` | Auditar, somente leitura, se a spec está refletida no código |
 
 ## Usar no escopo de um projeto
 
@@ -53,7 +57,7 @@ Se já houver versões instaladas e você quiser atualizá-las conscientemente:
 .\install-personal.ps1 -Force
 ```
 
-Com `-Force`, o instalador cria primeiro um backup em `<destino>\.backup\<data-id>` e substitui integralmente cada uma das seis skills, evitando arquivos obsoletos. Ele não remove outras skills ou agents pessoais.
+Com `-Force`, o instalador cria primeiro um backup em `<destino>\.backup\<data-id>` e substitui integralmente cada uma das sete skills, evitando arquivos obsoletos. Ele não remove outras skills ou agents pessoais.
 
 Por padrão, o destino respeita `COPILOT_HOME`; quando a variável não existe, usa `%USERPROFILE%\.copilot`. Para usar outro local:
 
@@ -87,4 +91,4 @@ O workflow `.github/workflows/validate.yml` repete esses controles no GitHub e f
 
 ## Qualidade
 
-O relatório [EVAL-RESULTS.md](EVAL-RESULTS.md) registra a avaliação estrutural, de roteamento e integrada das seis skills e dos seis agents.
+O relatório [EVAL-RESULTS.md](EVAL-RESULTS.md) registra a avaliação estrutural, de roteamento e integrada das sete skills e dos sete agents.

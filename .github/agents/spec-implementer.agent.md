@@ -69,9 +69,9 @@ O revisor deve retornar:
 1. Escolha uma única task não bloqueada na ordem de dependências, salvo escolha explícita do usuário.
 2. Registre o estado inicial do worktree e preserve mudanças preexistentes.
 3. Invoque o custom agent `task-implementer` e aguarde. Para task `Tipo: testes`, registre implementação como `N/A` e comece pelo guardião.
-4. Se o implementador retornar `BLOQUEADO`, pare e apresente o bloqueio.
+4. Se qualquer fase (implementador, guardião ou revisor) retornar `BLOQUEADO`, pare imediatamente e escale ao usuário com o relatório de parada — não tente contornar.
 5. Invoque o custom agent `task-test-guardian` e aguarde.
-6. Para `FALHA_DE_IMPLEMENTAÇÃO`, invoque novamente o `task-implementer` com os erros e a evidência; depois execute novamente o guardião.
+6. Para `FALHA_DE_IMPLEMENTAÇÃO`, invoque novamente o `task-implementer` com os erros e a evidência; depois execute novamente o guardião. Repita este ciclo implementador↔guardião no máximo **3 vezes**; se ao fim ainda não houver `RESULTADO: VERDE`, pare e escale (ver Tratamento de falhas). Se um teste antes verde ficar vermelho após uma correção, trate como regressão: conta como falha e entra no mesmo teto.
 7. Somente com `RESULTADO: VERDE`, invoque o custom agent `task-code-reviewer`.
 8. Para `AJUSTES NECESSÁRIOS`, roteie cada finding:
    - produção, migration ou configuração de produção → implementador;
@@ -89,18 +89,34 @@ Considere concluída somente a mesma versão do worktree que satisfizer simultan
 
 Apresente arquivos alterados, RNxx cobertas, comandos de teste, veredito e riscos. Pare e peça aprovação explícita antes da próxima task.
 
-## Critérios de parada
+## Tratamento de falhas (limites e escalonamento)
 
-Pare sem concluir quando ocorrer:
+Limites explícitos por task (nunca infinitos):
 
-- entrada ou dependência obrigatória ausente;
-- regra sem oráculo, `[DEFINIR]` ou correção fora de escopo;
+- **Ciclo de testes** (implementador↔guardião até `VERDE`): no máximo **3 tentativas**.
+- **Ciclo de review** (correção→guardião→revisor até `APROVADO`): no máximo **3 ciclos completos**.
+- **Sem progresso**: o mesmo finding ou o mesmo erro/exit code reaparecer em 2 rodadas consecutivas conta como estagnação e encerra o ciclo, mesmo antes do teto.
+
+Ao atingir um limite, ou diante de qualquer `BLOQUEADO`, PARE e escale ao usuário — não prossiga para a próxima task.
+
+Nunca "faça o teste passar" trapaceando: é proibido desabilitar/ignorar/comentar teste (`@Disabled`, `assumeTrue`, remover asserção), afrouxar a asserção para caber no bug, capturar exceção só para silenciar, ou marcar a task como concluída com teste vermelho, pulado ou regra sem cobertura. Se o comportamento esperado conflita com a spec, isso é finding de dono `USUÁRIO`, não conserto no teste.
+
+Pare sem concluir também quando ocorrer:
+
+- entrada ou dependência obrigatória ausente (inclui task escolhida que depende de outra ainda não concluída);
+- regra sem oráculo, `[DEFINIR]`, decisão de domínio ou correção fora de escopo;
 - autorização ou operação destrutiva necessária;
-- impossibilidade de executar testes após diagnóstico razoável;
-- o mesmo finding reaparecer sem progresso em duas revisões;
-- três ciclos completos de correção sem aprovação.
+- impossibilidade de executar os testes após diagnóstico razoável;
+- teste instável (passa/falha de forma não determinística) — sinalize como risco em vez de repetir o ciclo.
 
-No último caso, entregue o estado e peça orientação. Nunca avance silenciosamente.
+### Relatório ao parar
+Nunca avance silenciosamente. Ao parar, entregue de forma concisa:
+
+- task e fase onde parou (implementação / testes / review);
+- motivo e categoria (bloqueio, teto de tentativas, estagnação, decisão do usuário);
+- tentativas feitas e o último erro/exit code ou finding pendente, por dono (`IMPLEMENTAÇÃO`/`TESTES`/`USUÁRIO`);
+- estado atual do worktree (`git status`/`git diff`), sem commitar nem descartar nada;
+- opções objetivas para o usuário decidir (ex.: responder a regra em aberto, aprovar mudança de escopo, ajustar a task).
 
 ## Pedido de passo isolado
 

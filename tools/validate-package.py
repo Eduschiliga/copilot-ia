@@ -20,6 +20,7 @@ NAMES = (
     "task-implementer",
     "task-test-guardian",
     "task-code-reviewer",
+    "spec-conformance",
 )
 
 EXPECTED_TOOLS = {
@@ -29,6 +30,7 @@ EXPECTED_TOOLS = {
     "task-implementer": ["read", "search", "edit", "execute"],
     "task-test-guardian": ["read", "search", "edit", "execute"],
     "task-code-reviewer": ["read", "search"],
+    "spec-conformance": ["read", "search"],
 }
 
 EXPECTED_AGENT_NAMES = {
@@ -38,6 +40,7 @@ EXPECTED_AGENT_NAMES = {
     "task-implementer": "Task Implementer",
     "task-test-guardian": "Task Test Guardian",
     "task-code-reviewer": "Task Code Reviewer",
+    "spec-conformance": "Spec Conformance",
 }
 
 EXPECTED_HANDOFFS = {
@@ -61,6 +64,7 @@ EXPECTED_HANDOFFS = {
     "task-implementer": [],
     "task-test-guardian": [],
     "task-code-reviewer": [],
+    "spec-conformance": [],
 }
 
 SKILL_FIELDS = {
@@ -226,7 +230,7 @@ def validate_package() -> None:
         if mojibake in corpus:
             fail(f"mojibake found: {mojibake}")
 
-    print("PASS package: 6 skills, 6 agents, tool scopes, handoffs, parity, UTF-8")
+    print(f"PASS package: {len(NAMES)} skills, {len(NAMES)} agents, tool scopes, handoffs, parity, UTF-8")
 
 
 if __name__ == "__main__":
